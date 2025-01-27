@@ -70,7 +70,7 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("400: Responds with 'Bad Request' when id is not a valid number", () => {
+  test("400: Responds with 'Bad Request' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/notanumber")
       .expect(400)
@@ -113,7 +113,7 @@ describe("GET /api/articles", () => {
       });
   });
 
-  test("200: Response articles should be sorted by date", () => {
+  test("200: Response articles should be sorted by date descending", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -123,6 +123,58 @@ describe("GET /api/articles", () => {
         });
 
         expect(dates).toBeSorted({ descending: true });
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with array of comment objects with an article_id of :article Id", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(2);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            article_id: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            votes: expect.any(Number),
+            body: expect.any(String),
+          });
+        });
+      });
+  });
+
+  test("200: Response comments should be sorted by date most recent first", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        const dates = comments.map((comment) => {
+          return new Date(comment.created_at).getTime();
+        });
+
+        expect(dates).toBeSorted({ descending: true });
+      });
+  });
+
+  test("400: 400: Responds with 'Bad Request' when article_id is not a valid number", () => {
+    return request(app)
+      .get("/api/articles/banana/comments")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request");
+      });
+  });
+
+  test("404:Responds with 'No comments found for this article' when article_id has no comments", () => {
+    return request(app)
+      .get("/api/articles/55/comments")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("No comments found for this article");
       });
   });
 });
