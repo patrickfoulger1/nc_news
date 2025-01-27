@@ -75,3 +75,22 @@ exports.selectArticleById = async (article_id) => {
     return articles[0];
   }
 };
+
+exports.selectCommentsByArticleId = async (article_id) => {
+  const commentSql = `
+  SELECT * FROM comments
+  WHERE article_id = $1
+  ORDER BY created_at DESC
+  `;
+
+  const { rows: comments, rowCount } = await db.query(commentSql, [article_id]);
+
+  if (rowCount === 0) {
+    return Promise.reject({
+      status: 404,
+      message: "No comments found for this article",
+    });
+  } else {
+    return comments;
+  }
+};

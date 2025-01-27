@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectArticles,
   modifyArticles,
+  selectCommentsByArticleId,
 } = require("../Models/articles.model");
 
 exports.getArticles = async (request, response, next) => {
@@ -21,6 +22,18 @@ exports.getArticleById = async (request, response, next) => {
     } = request;
     const article = await selectArticleById(article_id);
     response.status(200).send({ article });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getCommentsByArticleId = async (request, response, next) => {
+  try {
+    const {
+      params: { article_id },
+    } = request;
+    const comments = await selectCommentsByArticleId(article_id);
+    response.status(200).send({ comments });
   } catch (error) {
     next(error);
   }
