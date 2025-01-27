@@ -7,7 +7,6 @@ app.get("/api", getEndpoints);
 app.get("/api/topics", getTopics);
 
 app.use((error, request, response, next) => {
-  console.log(error);
   if (error.status === "404") {
     response.status(404).send({ message: error.message });
   } else {
