@@ -28,7 +28,7 @@
   },
 
   "GET /api/articles/:article_id": {
-    "description": "gives a spefic article object based on the :article_idea param",
+    "description": "gives a spefic article object based on the :article_id param",
     "queries": [],
     "exampleResponse": {
       "article": [
