@@ -1,11 +1,15 @@
 const express = require("express");
 const { getEndpoints } = require("./Controllers/app.controller");
 const { getTopics } = require("./Controllers/topics.controller");
-const { getArticleById } = require("./Controllers/articles.controller");
+const {
+  getArticleById,
+  getArticles,
+} = require("./Controllers/articles.controller");
 const app = express();
 
 app.get("/api", getEndpoints);
 app.get("/api/topics", getTopics);
+app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 
 app.use((error, request, response, next) => {
@@ -25,6 +29,7 @@ app.use((error, request, response, next) => {
 });
 
 app.use((error, request, response, next) => {
+  console.log(error);
   response.status(500).send({ message: "Internal Server Error" });
 });
 

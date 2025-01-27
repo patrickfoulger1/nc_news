@@ -1,4 +1,18 @@
-const { selectArticleById } = require("../Models/articles.model");
+const {
+  selectArticleById,
+  selectArticles,
+  modifyArticles,
+} = require("../Models/articles.model");
+
+exports.getArticles = async (request, response, next) => {
+  try {
+    const articles = await selectArticles();
+    const modiedArticles = await modifyArticles(articles);
+    response.status(200).send({ articles: modiedArticles });
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.getArticleById = async (request, response, next) => {
   try {
