@@ -14,6 +14,10 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
+app.all("*", (request, response) => {
+  response.status(404).send({ message: "Endpoint not found" });
+});
+
 app.use((error, request, response, next) => {
   if (error.code === "22P02") {
     response.status(400).send({ message: "Bad Request" });

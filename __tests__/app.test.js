@@ -13,6 +13,17 @@ beforeEach(() => {
 afterAll(() => {
   return db.end();
 });
+
+describe("Invalid endpoint", () => {
+  test("404: Should respond 'Endpoint not found' when handling requests to endpoints that don't exist", () => {
+    return request(app)
+      .get("/api/notanendpoint")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Endpoint not found");
+      });
+  });
+});
 describe("GET /api", () => {
   test("200: Responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
