@@ -5,14 +5,21 @@ const {
   getArticleById,
   getArticles,
   getCommentsByArticleId,
+  postComment,
 } = require("./Controllers/articles.controller");
 const app = express();
+app.use(express.json());
 
 app.get("/api", getEndpoints);
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+app.post("/api/articles/:article_id/comments", postComment);
+
+app.all("*", (request, response) => {
+  response.status(404).send({ message: "Endpoint not found" });
+});
 
 app.use((error, request, response, next) => {
   if (error.code === "22P02") {
@@ -23,8 +30,8 @@ app.use((error, request, response, next) => {
 });
 
 app.use((error, request, response, next) => {
-  if (error.status === 404) {
-    response.status(404).send({ message: error.message });
+  if (error.status && error.message) {
+    response.status(error.status).send({ message: error.message });
   } else {
     next(error);
   }

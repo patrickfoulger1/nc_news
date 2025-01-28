@@ -1,5 +1,8 @@
 const db = require("../../db/connection.js");
-const articles = require("../../db/data/test-data/articles.js");
+const { convertTimestampToDate } = require("../../db/seeds/utils.js");
+const { checkArticleExists } = require("../utils/checkArticleExists.js");
+const { checkIfValidArticleId } = require("../utils/checkIfValidArticleId.js");
+const { getKeyString } = require("../utils/format.js");
 
 exports.selectArticles = async () => {
   const articleSql = `
@@ -60,23 +63,23 @@ removeArticlesBody = (articles) => {
 };
 
 exports.selectArticleById = async (article_id) => {
+  await checkIfValidArticleId(article_id);
+  await checkArticleExists(article_id);
   const articleSql = `
   SELECT * FROM articles
   WHERE article_id = $1
   `;
 
   const { rows: articles, rowCount } = await db.query(articleSql, [article_id]);
-  if (rowCount === 0) {
-    return Promise.reject({
-      status: 404,
-      message: `No article with the ID ${article_id} found`,
-    });
-  } else {
-    return articles[0];
-  }
+
+  await checkArticleExists(article_id);
+
+  return articles[0];
 };
 
 exports.selectCommentsByArticleId = async (article_id) => {
+  await checkIfValidArticleId(article_id);
+  await checkArticleExists(article_id);
   const commentSql = `
   SELECT * FROM comments
   WHERE article_id = $1
@@ -85,12 +88,38 @@ exports.selectCommentsByArticleId = async (article_id) => {
 
   const { rows: comments, rowCount } = await db.query(commentSql, [article_id]);
 
-  if (rowCount === 0) {
+  return comments;
+};
+
+exports.insertComment = async (article_id, comment) => {
+  await checkIfValidArticleId(article_id);
+  await checkArticleExists(article_id);
+  const insertCommentSql = `
+    INSERT INTO comments(author, body, article_id,  votes, created_at)
+    VALUES($1, $2, $3, 0, $4)
+    RETURNING *
+  `;
+  const commentValues = [];
+  const missingKeys = [];
+
+  const expectedKeys = ["username", "body"];
+
+  for (const key of expectedKeys) {
+    if (comment[key]) {
+      commentValues.push(comment[key]);
+    } else {
+      missingKeys.push(key);
+    }
+  }
+  if (missingKeys.length > 0) {
     return Promise.reject({
-      status: 404,
-      message: "No comments found for this article",
+      status: 400,
+      message: `Comment is missing ${getKeyString(missingKeys)}`,
     });
   } else {
-    return comments;
+    commentValues.push(article_id);
+    commentValues.push(new Date());
+    const { rows: comments } = await db.query(insertCommentSql, commentValues);
+    return comments[0];
   }
 };

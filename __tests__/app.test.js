@@ -13,6 +13,17 @@ beforeEach(() => {
 afterAll(() => {
   return db.end();
 });
+
+describe("Invalid endpoint", () => {
+  test("404: Responds with 'Endpoint not found' when handling requests to endpoints that don't exist", () => {
+    return request(app)
+      .get("/api/notanendpoint")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Endpoint not found");
+      });
+  });
+});
 describe("GET /api", () => {
   test("200: Responds with an object detailing the documentation for each endpoint", () => {
     return request(app)
@@ -61,21 +72,21 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("404: Responds with error 'No article with the ID <article_id> found' when no article exists with article_id", () => {
+  test("404: Responds with error 'Article with id <article_id> does not exist' when no article exists with article_id", () => {
     return request(app)
       .get("/api/articles/999")
       .expect(404)
       .then(({ body: { message } }) => {
-        expect(message).toBe("No article with the ID 999 found");
+        expect(message).toBe("Article with id 999 does not exist");
       });
   });
 
-  test("400: Responds with 'Bad Request' when article_id is not a valid number", () => {
+  test("400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/notanumber")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Bad Request");
+        expect(message).toBe("notanumber is not a valid id");
       });
   });
 });
@@ -152,21 +163,103 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: 400: Responds with 'Bad Request' when article_id is not a valid number", () => {
+  test("200: Response should be empty array if article has no comments", () => {
+    return (
+      request(app)
+        .get("/api/articles/2/comments")
+        //.expect(200)
+        .then(({ body: { comments } }) => {
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments.length).toBe(0);
+        })
+    );
+  });
+
+  test("400: 400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/banana/comments")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Bad Request");
+        expect(message).toBe("banana is not a valid id");
       });
   });
 
-  test("404:Responds with 'No comments found for this article' when article_id has no comments", () => {
+  test("404:Responds with 'Article with id <article_id> does not exist' article dosen't exist", () => {
     return request(app)
       .get("/api/articles/55/comments")
       .expect(404)
       .then(({ body: { message } }) => {
-        expect(message).toBe("No comments found for this article");
+        expect(message).toBe("Article with id 55 does not exist");
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Adds comment from request body to specified article and responds with comment posted", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "lurker",
+        body: "wow what a cool article",
+      })
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: 19,
+          body: "wow what a cool article",
+          article_id: 1,
+          author: "lurker",
+          votes: 0,
+          created_at: expect.any(String),
+        });
+
+        return db.query("SELECT * FROM comments WHERE comment_id = 19");
+      })
+      .then(({ rows: comments }) => {
+        expect(comments[0]).toMatchObject({
+          comment_id: expect.any(Number),
+          article_id: expect.any(Number),
+          created_at: expect.any(Object),
+          author: expect.any(String),
+          votes: expect.any(Number),
+          body: expect.any(String),
+        });
+      });
+  });
+
+  test("404: Responds with 'Article with id <article_id> does not exist' when article dosen't exist", () => {
+    return request(app)
+      .post("/api/articles/90/comments")
+      .send({
+        username: "lurker",
+        body: "wow what a cool article",
+      })
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article with id 90 does not exist");
+      });
+  });
+
+  test("400: Responds with 'banana is not a valid id' when article_id is not a valid number", () => {
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send({
+        username: "lurker",
+        body: "wow what a cool article",
+      })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("banana is not a valid id");
+      });
+  });
+
+  test("400: Responds with error describing missing keys when posted comment is missing keys", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({})
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Comment is missing username and body keys");
       });
   });
 });

@@ -1,9 +1,18 @@
+const { checkArticleExists } = require("../app/utils/checkArticleExists.js");
+const {
+  checkIfValidArticleId,
+} = require("../app/utils/checkIfValidArticleId.js");
+const { getKeyString } = require("../app/utils/format.js");
+const db = require("../db/connection.js");
 const {
   convertTimestampToDate,
   createRef,
   formatComments,
 } = require("../db/seeds/utils");
 
+afterAll(() => {
+  return db.end();
+});
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
     const timestamp = 1557572706232;
@@ -100,5 +109,42 @@ describe("formatComments", () => {
     const comments = [{ created_at: timestamp }];
     const formattedComments = formatComments(comments, {});
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
+  });
+});
+
+describe("checkArticleExists", () => {
+  test("Should resolve if article with specific id exists in database", () => {
+    expect(checkArticleExists(5)).resolves.toBe(undefined);
+  });
+
+  test("404: Should reject if article doesen't exist in database", () => {
+    expect(checkArticleExists(55)).rejects.toEqual({
+      status: 404,
+      message: "Article with id 55 does not exist",
+    });
+  });
+});
+
+describe("checkIfValidArticleId", () => {
+  test("Should resolve is article Id is valid", () => {
+    expect(checkIfValidArticleId("5")).resolves.toBe(undefined);
+    expect(checkIfValidArticleId("999")).resolves.toBe(undefined);
+  });
+
+  test("400: Should reject if article Id is not valid", () => {
+    expect(checkIfValidArticleId("banana")).rejects.toEqual({
+      status: 400,
+      message: "banana is not a valid id",
+    });
+  });
+});
+
+describe("getKeyString", () => {
+  test("should format keys into readable format", () => {
+    expect(getKeyString(["key1"])).toBe("key1 key");
+    expect(getKeyString(["key1", "key2"])).toBe("key1 and key2 keys");
+    expect(getKeyString(["key1", "key2", "key3"])).toBe(
+      "key1, key2, and key3 keys"
+    );
   });
 });
