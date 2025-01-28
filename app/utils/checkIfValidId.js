@@ -3,7 +3,7 @@ exports.checkIfValidId = (id) => {
   if (isNaN(id)) {
     return Promise.reject({
       status: 400,
-      message: `Not a valid id`,
+      message: `Type is not a number`,
     });
   } else {
     return Promise.resolve(undefined);

@@ -27,7 +27,9 @@ app.all("*", (request, response) => {
 
 app.use((error, request, response, next) => {
   if (error.code === "22P02") {
-    response.status(400).send({ message: "Not a valid id" });
+    response.status(400).send({ message: "Type is not a number" });
+  } else if (error.code === "23502") {
+    response.status(400).send({ message: "Type is undefined" });
   } else {
     next(error);
   }

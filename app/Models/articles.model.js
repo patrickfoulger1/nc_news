@@ -123,26 +123,17 @@ exports.insertComment = async (article_id, comment) => {
 exports.updateArticle = async (article_id, inc_votes) => {
   await checkArticleExists(article_id);
 
-  if (inc_votes === undefined) {
-    return Promise.reject({ status: 400, message: "missing inc_votes key" });
-  } else if (typeof inc_votes !== "number") {
-    return Promise.reject({
-      status: 400,
-      message: "inc_votes should be a number",
-    });
-  } else {
-    const updateArticleSql = `
+  const updateArticleSql = `
     UPDATE articles
     SET votes = votes + $1
     WHERE article_id = $2
     RETURNING *
     `;
 
-    const { rows: updates, rowCount } = await db.query(updateArticleSql, [
-      inc_votes,
-      article_id,
-    ]);
+  const { rows: updates, rowCount } = await db.query(updateArticleSql, [
+    inc_votes,
+    article_id,
+  ]);
 
-    return updates[0];
-  }
+  return updates[0];
 };

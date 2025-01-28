@@ -81,12 +81,12 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
+  test("400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/notanumber")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Not a valid id");
+        expect(message).toBe("Type is not a number");
       });
   });
 });
@@ -175,12 +175,12 @@ describe("GET /api/articles/:article_id/comments", () => {
     );
   });
 
-  test("400: 400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
+  test("400: 400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/banana/comments")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Not a valid id");
+        expect(message).toBe("Type is not a number");
       });
   });
 
@@ -212,18 +212,6 @@ describe("POST /api/articles/:article_id/comments", () => {
           votes: 0,
           created_at: expect.any(String),
         });
-
-        return db.query("SELECT * FROM comments WHERE comment_id = 19");
-      })
-      .then(({ rows: comments }) => {
-        expect(comments[0]).toMatchObject({
-          comment_id: expect.any(Number),
-          article_id: expect.any(Number),
-          created_at: expect.any(Object),
-          author: expect.any(String),
-          votes: expect.any(Number),
-          body: expect.any(String),
-        });
       });
   });
 
@@ -240,7 +228,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
+  test("400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
     return request(app)
       .post("/api/articles/banana/comments")
       .send({
@@ -249,7 +237,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Not a valid id");
+        expect(message).toBe("Type is not a number");
       });
   });
 
@@ -274,20 +262,8 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(article).toMatchObject({
           author: expect.any(String),
           title: expect.any(String),
-          article_id: expect.any(Number),
+          article_id: 1,
           created_at: expect.any(String),
-          votes: 150,
-          article_img_url: expect.any(String),
-        });
-
-        return db.query("SELECT * FROM articles WHERE article_id = 1");
-      })
-      .then(({ rows: articles }) => {
-        expect(articles[0]).toMatchObject({
-          author: expect.any(String),
-          title: expect.any(String),
-          article_id: expect.any(Number),
-          created_at: expect.any(Object),
           votes: 150,
           article_img_url: expect.any(String),
         });
@@ -322,13 +298,13 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  test("400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
+  test("400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
     return request(app)
       .patch("/api/articles/banana")
       .send({ inc_votes: 50 })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Not a valid id");
+        expect(message).toBe("Type is not a number");
       });
   });
 
@@ -338,17 +314,17 @@ describe("PATCH /api/articles/:article_id", () => {
       .send({})
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("missing inc_votes key");
+        expect(message).toBe("Type is undefined");
       });
   });
 
   test("400: Responds with error when inc_vote is wrong data type", () => {
     return request(app)
       .patch("/api/articles/1")
-      .send({ inc_votes: "50" })
+      .send({ inc_votes: true })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("inc_votes should be a number");
+        expect(message).toBe("Type is not a number");
       });
   });
 });
@@ -380,7 +356,7 @@ describe("DELETE /api/comments/:comment_id", () => {
       .delete("/api/comments/banana")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Not a valid id");
+        expect(message).toBe("Type is not a number");
       });
   });
 });

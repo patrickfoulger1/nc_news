@@ -134,7 +134,7 @@ describe("checkIfValidArticleId", () => {
   test("400: Should reject if article Id is not valid", () => {
     expect(checkIfValidArticleId("banana")).rejects.toEqual({
       status: 400,
-      message: "Not a valid id",
+      message: "Type is not a number",
     });
   });
 });
