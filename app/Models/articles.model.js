@@ -95,8 +95,8 @@ exports.insertComment = async (article_id, comment) => {
   await checkIfValidArticleId(article_id);
   await checkArticleExists(article_id);
   const insertCommentSql = `
-    INSERT INTO comments(author, body, article_id,  votes, created_at)
-    VALUES($1, $2, $3, 0, $4)
+    INSERT INTO comments(author, body, article_id,  votes)
+    VALUES($1, $2, $3, 0)
     RETURNING *
   `;
   const commentValues = [];
@@ -118,7 +118,6 @@ exports.insertComment = async (article_id, comment) => {
     });
   } else {
     commentValues.push(article_id);
-    commentValues.push(new Date());
     const { rows: comments } = await db.query(insertCommentSql, commentValues);
     return comments[0];
   }
