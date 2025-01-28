@@ -1,7 +1,7 @@
 const { checkArticleExists } = require("../app/utils/checkArticleExists.js");
 const {
-  checkIfValidArticleId,
-} = require("../app/utils/checkIfValidArticleId.js");
+  checkIfValidId: checkIfValidArticleId,
+} = require("../app/utils/checkIfValidId.js");
 const { getKeyString } = require("../app/utils/format.js");
 const db = require("../db/connection.js");
 const {
@@ -134,7 +134,7 @@ describe("checkIfValidArticleId", () => {
   test("400: Should reject if article Id is not valid", () => {
     expect(checkIfValidArticleId("banana")).rejects.toEqual({
       status: 400,
-      message: "banana is not a valid id",
+      message: "Not a valid id",
     });
   });
 });
