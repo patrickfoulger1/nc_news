@@ -118,11 +118,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
-        const dates = articles.map((article) => {
-          return new Date(article.created_at).getTime();
-        });
-
-        expect(dates).toBeSorted({ descending: true });
+        expect(articles).toBeSorted({ descending: true, key: "created_at" });
       });
   });
 });
@@ -152,11 +148,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body: { comments } }) => {
-        const dates = comments.map((comment) => {
-          return new Date(comment.created_at).getTime();
-        });
-
-        expect(dates).toBeSorted({ descending: true });
+        expect(comments).toBeSorted({ descending: true, key: "created_at" });
       });
   });
 
