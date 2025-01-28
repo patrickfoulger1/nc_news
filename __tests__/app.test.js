@@ -240,7 +240,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: Responds with 'banana is not a valid id' when article_id is not a valid number", () => {
+  test("400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
     return request(app)
       .post("/api/articles/banana/comments")
       .send({
@@ -260,6 +260,95 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then(({ body: { message } }) => {
         expect(message).toBe("Comment is missing username and body keys");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: Increments articles votes by inc_votes value on request object responds with updated article", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 50 })
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          created_at: expect.any(String),
+          votes: 150,
+          article_img_url: expect.any(String),
+        });
+
+        return db.query("SELECT * FROM articles WHERE article_id = 1");
+      })
+      .then(({ rows: articles }) => {
+        expect(articles[0]).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          created_at: expect.any(Object),
+          votes: 150,
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+
+  test("200: Works when inc vote is a negative value", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: -50 })
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          created_at: expect.any(String),
+          votes: 50,
+          article_img_url: expect.any(String),
+          topic: expect.any(String),
+        });
+      });
+  });
+
+  test("404: Responds with 'Article with id <article_id> does not exist' when article dosen't exist", () => {
+    return request(app)
+      .patch("/api/articles/76")
+      .send({ inc_votes: 50 })
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article with id 76 does not exist");
+      });
+  });
+
+  test("400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
+    return request(app)
+      .patch("/api/articles/banana")
+      .send({ inc_votes: 50 })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("banana is not a valid id");
+      });
+  });
+
+  test("400: Responds with error describing missing inc_vote when key is missing", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({})
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("missing inc_votes key");
+      });
+  });
+
+  test("400: Responds with error when inc_vote is wrong data type", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: "50" })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("inc_votes should be a number");
       });
   });
 });
