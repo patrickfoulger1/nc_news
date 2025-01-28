@@ -23,8 +23,8 @@ app.use((error, request, response, next) => {
 });
 
 app.use((error, request, response, next) => {
-  if (error.status === 404) {
-    response.status(404).send({ message: error.message });
+  if (error.status && error.message) {
+    response.status(error.status).send({ message: error.message });
   } else {
     next(error);
   }
