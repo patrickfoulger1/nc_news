@@ -2,6 +2,7 @@ const { checkArticleExists } = require("../app/utils/checkArticleExists.js");
 const {
   checkIfValidArticleId,
 } = require("../app/utils/checkIfValidArticleId.js");
+const { getKeyString } = require("../app/utils/format.js");
 const db = require("../db/connection.js");
 const {
   convertTimestampToDate,
@@ -135,5 +136,15 @@ describe("checkIfValidArticleId", () => {
       status: 400,
       message: "banana is not a valid id",
     });
+  });
+});
+
+describe("getKeyString", () => {
+  test("should format keys into readable format", () => {
+    expect(getKeyString(["key1"])).toBe("key1 key");
+    expect(getKeyString(["key1", "key2"])).toBe("key1 and key2 keys");
+    expect(getKeyString(["key1", "key2", "key3"])).toBe(
+      "key1, key2, and key3 keys"
+    );
   });
 });

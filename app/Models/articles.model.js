@@ -1,5 +1,8 @@
 const db = require("../../db/connection.js");
+const { convertTimestampToDate } = require("../../db/seeds/utils.js");
 const { checkArticleExists } = require("../utils/checkArticleExists.js");
+const { checkIfValidArticleId } = require("../utils/checkIfValidArticleId.js");
+const { getKeyString } = require("../utils/format.js");
 
 exports.selectArticles = async () => {
   const articleSql = `
@@ -60,6 +63,8 @@ removeArticlesBody = (articles) => {
 };
 
 exports.selectArticleById = async (article_id) => {
+  await checkIfValidArticleId(article_id);
+  await checkArticleExists(article_id);
   const articleSql = `
   SELECT * FROM articles
   WHERE article_id = $1
@@ -73,6 +78,8 @@ exports.selectArticleById = async (article_id) => {
 };
 
 exports.selectCommentsByArticleId = async (article_id) => {
+  await checkIfValidArticleId(article_id);
+  await checkArticleExists(article_id);
   const commentSql = `
   SELECT * FROM comments
   WHERE article_id = $1
@@ -80,15 +87,39 @@ exports.selectCommentsByArticleId = async (article_id) => {
   `;
 
   const { rows: comments, rowCount } = await db.query(commentSql, [article_id]);
-  await checkArticleExists(article_id);
 
   return comments;
 };
 
-exports.insertComment = async (article_id) => {
+exports.insertComment = async (article_id, comment) => {
+  await checkIfValidArticleId(article_id);
+  await checkArticleExists(article_id);
   const insertCommentSql = `
-    INSERT INTO comments(body, article_id, author, votes, created_at)
-    VALUES($1, $2, $3, 0, $5)
+    INSERT INTO comments(author, body, article_id,  votes, created_at)
+    VALUES($1, $2, $3, 0, $4)
     RETURNING *
   `;
+  const commentValues = [];
+  const missingKeys = [];
+
+  const expectedKeys = ["username", "body"];
+
+  for (const key of expectedKeys) {
+    if (comment[key]) {
+      commentValues.push(comment[key]);
+    } else {
+      missingKeys.push(key);
+    }
+  }
+  if (missingKeys.length > 0) {
+    return Promise.reject({
+      status: 400,
+      message: `Comment is missing ${getKeyString(missingKeys)}`,
+    });
+  } else {
+    commentValues.push(article_id);
+    commentValues.push(new Date());
+    const { rows: comments } = await db.query(insertCommentSql, commentValues);
+    return comments[0];
+  }
 };

@@ -44,9 +44,10 @@ exports.postComment = async (request, response, next) => {
   try {
     const {
       params: { article_id },
+      body: comment,
     } = request;
 
-    const postedComment = await insertComment(article_id);
+    const postedComment = await insertComment(article_id, comment);
     response.status(201).send({ comment: postedComment });
   } catch (error) {
     next(error);
