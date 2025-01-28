@@ -1,5 +1,5 @@
 const db = require("../../db/connection.js");
-const articles = require("../../db/data/test-data/articles.js");
+const { checkArticleExists } = require("../utils/checkArticleExists.js");
 
 exports.selectArticles = async () => {
   const articleSql = `
@@ -66,14 +66,10 @@ exports.selectArticleById = async (article_id) => {
   `;
 
   const { rows: articles, rowCount } = await db.query(articleSql, [article_id]);
-  if (rowCount === 0) {
-    return Promise.reject({
-      status: 404,
-      message: `No article with the ID ${article_id} found`,
-    });
-  } else {
-    return articles[0];
-  }
+
+  await checkArticleExists(article_id);
+
+  return articles[0];
 };
 
 exports.selectCommentsByArticleId = async (article_id) => {
@@ -84,13 +80,15 @@ exports.selectCommentsByArticleId = async (article_id) => {
   `;
 
   const { rows: comments, rowCount } = await db.query(commentSql, [article_id]);
+  await checkArticleExists(article_id);
 
-  if (rowCount === 0) {
-    return Promise.reject({
-      status: 404,
-      message: "No comments found for this article",
-    });
-  } else {
-    return comments;
-  }
+  return comments;
+};
+
+exports.insertComment = async (article_id) => {
+  const insertCommentSql = `
+    INSERT INTO comments(body, article_id, author, votes, created_at)
+    VALUES($1, $2, $3, 0, $5)
+    RETURNING *
+  `;
 };

@@ -1,10 +1,14 @@
 const { checkArticleExists } = require("../app/utils/checkArticleExists");
+const db = require("../db/connection.js");
 const {
   convertTimestampToDate,
   createRef,
   formatComments,
 } = require("../db/seeds/utils");
 
+afterAll(() => {
+  return db.end();
+});
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
     const timestamp = 1557572706232;

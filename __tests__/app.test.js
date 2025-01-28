@@ -61,12 +61,12 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("404: Responds with error 'No article with the ID <article_id> found' when no article exists with article_id", () => {
+  test("404: Responds with error 'Article with id <article_id> does not exist' when no article exists with article_id", () => {
     return request(app)
       .get("/api/articles/999")
       .expect(404)
       .then(({ body: { message } }) => {
-        expect(message).toBe("No article with the ID 999 found");
+        expect(message).toBe("Article with id 999 does not exist");
       });
   });
 
@@ -152,6 +152,18 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
+  test("200: Response should be empty array if article has no comments", () => {
+    return (
+      request(app)
+        .get("/api/articles/2/comments")
+        //.expect(200)
+        .then(({ body: { comments } }) => {
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments.length).toBe(0);
+        })
+    );
+  });
+
   test("400: 400: Responds with 'Bad Request' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/banana/comments")
@@ -161,12 +173,12 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("404:Responds with 'No comments found for this article' when article_id has no comments", () => {
+  test("404:Responds with 'Article with id <article_id> does not exist' article dosen't exist", () => {
     return request(app)
       .get("/api/articles/55/comments")
       .expect(404)
       .then(({ body: { message } }) => {
-        expect(message).toBe("No comments found for this article");
+        expect(message).toBe("Article with id 55 does not exist");
       });
   });
 });
