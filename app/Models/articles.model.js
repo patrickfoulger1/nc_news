@@ -1,6 +1,6 @@
 const db = require("../../db/connection.js");
 const { checkArticleExists } = require("../utils/checkArticleExists.js");
-const { checkIfValidArticleId } = require("../utils/checkIfValidArticleId.js");
+const { checkIfValidId } = require("../utils/checkIfValidId.js");
 const { getKeyString } = require("../utils/format.js");
 
 exports.selectArticles = async () => {
@@ -62,7 +62,6 @@ removeArticlesBody = (articles) => {
 };
 
 exports.selectArticleById = async (article_id) => {
-  await checkIfValidArticleId(article_id);
   await checkArticleExists(article_id);
   const articleSql = `
   SELECT * FROM articles
@@ -77,7 +76,6 @@ exports.selectArticleById = async (article_id) => {
 };
 
 exports.selectCommentsByArticleId = async (article_id) => {
-  await checkIfValidArticleId(article_id);
   await checkArticleExists(article_id);
   const commentSql = `
   SELECT * FROM comments
@@ -91,7 +89,7 @@ exports.selectCommentsByArticleId = async (article_id) => {
 };
 
 exports.insertComment = async (article_id, comment) => {
-  await checkIfValidArticleId(article_id);
+  await checkIfValidId(article_id);
   await checkArticleExists(article_id);
   const insertCommentSql = `
     INSERT INTO comments(author, body, article_id,  votes)
@@ -123,7 +121,6 @@ exports.insertComment = async (article_id, comment) => {
 };
 
 exports.updateArticle = async (article_id, inc_votes) => {
-  await checkIfValidArticleId(article_id);
   await checkArticleExists(article_id);
 
   if (inc_votes === undefined) {

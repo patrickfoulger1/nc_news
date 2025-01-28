@@ -81,12 +81,12 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
+  test("400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/notanumber")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("notanumber is not a valid id");
+        expect(message).toBe("Not a valid id");
       });
   });
 });
@@ -175,12 +175,12 @@ describe("GET /api/articles/:article_id/comments", () => {
     );
   });
 
-  test("400: 400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
+  test("400: 400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/banana/comments")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("banana is not a valid id");
+        expect(message).toBe("Not a valid id");
       });
   });
 
@@ -240,7 +240,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
+  test("400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
     return request(app)
       .post("/api/articles/banana/comments")
       .send({
@@ -249,7 +249,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("banana is not a valid id");
+        expect(message).toBe("Not a valid id");
       });
   });
 
@@ -322,13 +322,13 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  test("400: Responds with '<article_id> is not a valid id' when article_id is not a valid number", () => {
+  test("400: Responds with 'Not a valid id' when article_id is not a valid number", () => {
     return request(app)
       .patch("/api/articles/banana")
       .send({ inc_votes: 50 })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("banana is not a valid id");
+        expect(message).toBe("Not a valid id");
       });
   });
 
@@ -349,6 +349,38 @@ describe("PATCH /api/articles/:article_id", () => {
       .expect(400)
       .then(({ body: { message } }) => {
         expect(message).toBe("inc_votes should be a number");
+      });
+  });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: On successful deletion of comment", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(() => {
+        return db.query("SELECT * FROM comments WHERE comment_id = 1");
+      })
+      .then(({ rows }) => {
+        expect(rows.length).toBe(0);
+      });
+  });
+
+  test("404: If comment with given id does not exist", () => {
+    return request(app)
+      .delete("/api/comments/20")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Comment with id 20 does not exist");
+      });
+  });
+
+  test("400: If given id is invalid", () => {
+    return request(app)
+      .delete("/api/comments/banana")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Not a valid id");
       });
   });
 });
