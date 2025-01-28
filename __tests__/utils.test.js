@@ -1,4 +1,7 @@
-const { checkArticleExists } = require("../app/utils/checkArticleExists");
+const { checkArticleExists } = require("../app/utils/checkArticleExists.js");
+const {
+  checkIfValidArticleId,
+} = require("../app/utils/checkIfValidArticleId.js");
 const db = require("../db/connection.js");
 const {
   convertTimestampToDate,
@@ -117,6 +120,20 @@ describe("checkArticleExists", () => {
     expect(checkArticleExists(55)).rejects.toEqual({
       status: 404,
       message: "Article with id 55 does not exist",
+    });
+  });
+});
+
+describe("checkIfValidArticleId", () => {
+  test("Should resolve is article Id is valid", () => {
+    expect(checkIfValidArticleId("5")).resolves.toBe(undefined);
+    expect(checkIfValidArticleId("999")).resolves.toBe(undefined);
+  });
+
+  test("400: Should reject if article Id is not valid", () => {
+    expect(checkIfValidArticleId("banana")).rejects.toEqual({
+      status: 400,
+      message: "banana is not a valid id",
     });
   });
 });
