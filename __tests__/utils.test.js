@@ -1,3 +1,4 @@
+const { checkArticleExists } = require("../app/utils/checkArticleExists");
 const {
   convertTimestampToDate,
   createRef,
@@ -100,5 +101,18 @@ describe("formatComments", () => {
     const comments = [{ created_at: timestamp }];
     const formattedComments = formatComments(comments, {});
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
+  });
+});
+
+describe("checkArticleExists", () => {
+  test("Should resolve if article with specific id exists in database", () => {
+    expect(checkArticleExists(5)).resolves.toBe(undefined);
+  });
+
+  test("404: Should reject if article doesen't exist in database", () => {
+    expect(checkArticleExists(55)).rejects.toEqual({
+      status: 404,
+      message: "Article with id 55 does not exist",
+    });
   });
 });
