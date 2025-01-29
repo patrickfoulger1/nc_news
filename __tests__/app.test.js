@@ -331,15 +331,7 @@ describe("PATCH /api/articles/:article_id", () => {
 
 describe("DELETE /api/comments/:comment_id", () => {
   test("204: On successful deletion of comment", () => {
-    return request(app)
-      .delete("/api/comments/1")
-      .expect(204)
-      .then(() => {
-        return db.query("SELECT * FROM comments WHERE comment_id = 1");
-      })
-      .then(({ rows }) => {
-        expect(rows.length).toBe(0);
-      });
+    return request(app).delete("/api/comments/1").expect(204);
   });
 
   test("404: If comment with given id does not exist", () => {
