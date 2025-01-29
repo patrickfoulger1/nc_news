@@ -81,12 +81,12 @@ describe("GET /api/articles/:article_id", () => {
       });
   });
 
-  test("400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
+  test("400: Responds with Bad Request error message when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/notanumber")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Type is not a number");
+        expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
 });
@@ -175,12 +175,12 @@ describe("GET /api/articles/:article_id/comments", () => {
     );
   });
 
-  test("400: 400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
+  test("400:Responds with Bad Request error message when article_id is not a valid number", () => {
     return request(app)
       .get("/api/articles/banana/comments")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Type is not a number");
+        expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
 
@@ -228,7 +228,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
+  test("400: Responds with Bad Request error message when article_id is not a valid number", () => {
     return request(app)
       .post("/api/articles/banana/comments")
       .send({
@@ -237,7 +237,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Type is not a number");
+        expect(message).toBe("Bad Request: NOT NULL VIOLATION");
       });
   });
 
@@ -298,13 +298,13 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  test("400: Responds with 'Type is not a number' when article_id is not a valid number", () => {
+  test("400: Responds with Bad Request error message when article_id is not a valid number", () => {
     return request(app)
       .patch("/api/articles/banana")
       .send({ inc_votes: 50 })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Type is not a number");
+        expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
 
@@ -314,7 +314,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .send({})
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Type is undefined");
+        expect(message).toBe("Bad Request: NOT NULL VIOLATION");
       });
   });
 
@@ -324,7 +324,7 @@ describe("PATCH /api/articles/:article_id", () => {
       .send({ inc_votes: true })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Type is not a number");
+        expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
 });
@@ -356,7 +356,25 @@ describe("DELETE /api/comments/:comment_id", () => {
       .delete("/api/comments/banana")
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Type is not a number");
+        expect(message).toBe("Bad Request: Invalid Text Representation");
+      });
+  });
+});
+
+describe("GET /api/users", () => {
+  test("200: Responds with an array of topic objects with username, name, avatar_url properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { users } }) => {
+        expect(users.length).toBe(4);
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
       });
   });
 });
