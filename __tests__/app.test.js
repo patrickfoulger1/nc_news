@@ -89,6 +89,24 @@ describe("GET /api/articles/:article_id", () => {
         expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
+
+  test("200: Article should have comment_count property with count of comments", () => {
+    return request(app)
+      .get("/api/articles/5")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toHaveProperty("comment_count", 2);
+      });
+  });
+
+  test("200: If article has no comments it should be 0", () => {
+    return request(app)
+      .get("/api/articles/5")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article).toHaveProperty("comment_count", 2);
+      });
+  });
 });
 
 describe("GET /api/articles", () => {
