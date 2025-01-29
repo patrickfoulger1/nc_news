@@ -9,6 +9,7 @@ const {
   patchArticle,
 } = require("./Controllers/articles.controller");
 const { deleteComment } = require("./Controllers/comments.controller");
+const { getUsers } = require("./Controllers/users.controller");
 const app = express();
 app.use(express.json());
 
@@ -20,6 +21,7 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle);
 app.delete("/api/comments/:comment_id", deleteComment);
+app.get("/api/users", getUsers);
 
 app.all("*", (request, response) => {
   response.status(404).send({ message: "Endpoint not found" });
@@ -27,9 +29,11 @@ app.all("*", (request, response) => {
 
 app.use((error, request, response, next) => {
   if (error.code === "22P02") {
-    response.status(400).send({ message: "Type is not a number" });
+    response
+      .status(400)
+      .send({ message: "Bad Request: Invalid Text Representation" });
   } else if (error.code === "23502") {
-    response.status(400).send({ message: "Type is undefined" });
+    response.status(400).send({ message: "Bad Request: NOT NULL VIOLATION" });
   } else {
     next(error);
   }
