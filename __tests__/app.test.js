@@ -106,6 +106,7 @@ describe("GET /api/articles", () => {
             created_at: expect.any(String),
             votes: expect.any(Number),
             article_img_url: expect.any(String),
+            topic: expect.any(String),
             comment_count: expect.any(Number),
           });
         });
@@ -166,6 +167,37 @@ describe("GET /api/articles", () => {
       .expect(400)
       .then(({ body: { message } }) => {
         expect(message).toBe("Bad Request: banana is an invalid query");
+      });
+  });
+
+  test("200: topic query should filter down reponse to just articles that match the topic", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(1);
+        articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+
+  test("200: Responds with empty array if the topic does exist but no articles match it", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(0);
+      });
+  });
+
+  test("404: Responds with message describing topic doesn't exist if topic is not in database", () => {
+    return request(app)
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("The topic banana does not exist");
       });
   });
 });
