@@ -70,13 +70,10 @@ exports.selectArticleById = async (article_id) => {
 
   const { rows: articles, rowCount } = await db.query(articleSql, [article_id]);
 
-  await checkArticleExists(article_id);
-
   return articles[0];
 };
 
 exports.selectCommentsByArticleId = async (article_id) => {
-  await checkArticleExists(article_id);
   const commentSql = `
   SELECT * FROM comments
   WHERE article_id = $1
@@ -89,8 +86,6 @@ exports.selectCommentsByArticleId = async (article_id) => {
 };
 
 exports.insertComment = async (article_id, comment) => {
-  await checkIfValidId(article_id);
-  await checkArticleExists(article_id);
   const insertCommentSql = `
     INSERT INTO comments(author, body, article_id,  votes)
     VALUES($1, $2, $3, 0)
@@ -121,8 +116,6 @@ exports.insertComment = async (article_id, comment) => {
 };
 
 exports.updateArticle = async (article_id, inc_votes) => {
-  await checkArticleExists(article_id);
-
   const updateArticleSql = `
     UPDATE articles
     SET votes = votes + $1

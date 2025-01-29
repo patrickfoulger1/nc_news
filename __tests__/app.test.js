@@ -237,7 +237,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       })
       .expect(400)
       .then(({ body: { message } }) => {
-        expect(message).toBe("Bad Request: NOT NULL VIOLATION");
+        expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
 

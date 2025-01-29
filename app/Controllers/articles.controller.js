@@ -6,6 +6,8 @@ const {
   insertComment,
   updateArticle,
 } = require("../Models/articles.model");
+const { checkArticleExists } = require("../utils/checkArticleExists");
+const { checkIfValidId } = require("../utils/checkIfValidId");
 
 exports.getArticles = async (request, response, next) => {
   try {
@@ -22,6 +24,7 @@ exports.getArticleById = async (request, response, next) => {
     const {
       params: { article_id },
     } = request;
+    await checkArticleExists(article_id);
     const article = await selectArticleById(article_id);
     response.status(200).send({ article });
   } catch (error) {
@@ -34,6 +37,8 @@ exports.getCommentsByArticleId = async (request, response, next) => {
     const {
       params: { article_id },
     } = request;
+    await checkArticleExists(article_id);
+    await checkIfValidId(article_id);
     const comments = await selectCommentsByArticleId(article_id);
     response.status(200).send({ comments });
   } catch (error) {
@@ -47,7 +52,7 @@ exports.postComment = async (request, response, next) => {
       params: { article_id },
       body: comment,
     } = request;
-
+    await checkArticleExists(article_id);
     const postedComment = await insertComment(article_id, comment);
     response.status(201).send({ comment: postedComment });
   } catch (error) {
@@ -61,6 +66,7 @@ exports.patchArticle = async (request, response, next) => {
       params: { article_id },
       body: { inc_votes },
     } = request;
+    await checkArticleExists(article_id);
     const updatedArticle = await updateArticle(article_id, inc_votes);
     response.status(200).send({ article: updatedArticle });
   } catch (error) {
