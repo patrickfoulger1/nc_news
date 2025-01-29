@@ -11,7 +11,8 @@ const { checkIfValidId } = require("../utils/checkIfValidId");
 
 exports.getArticles = async (request, response, next) => {
   try {
-    const articles = await selectArticles();
+    const { query } = request;
+    const articles = await selectArticles(query);
     const modiedArticles = await modifyArticles(articles);
     response.status(200).send({ articles: modiedArticles });
   } catch (error) {
