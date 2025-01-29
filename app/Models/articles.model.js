@@ -1,19 +1,24 @@
 const db = require("../../db/connection.js");
 const { checkArticleExists } = require("../utils/checkArticleExists.js");
+const { checkTopicExists } = require("../utils/checkIfTopicExists.js");
 const { checkIfValidId } = require("../utils/checkIfValidId.js");
 const { getKeyString } = require("../utils/format.js");
 
-exports.selectArticles = async ({ sort_by, order }) => {
+exports.selectArticles = async ({ sort_by, order, topic }) => {
   sort_by ??= "created_at";
   order ??= "desc";
+
+  if (topic) {
+    await checkTopicExists(topic);
+  }
 
   sort_by = sort_by.toLowerCase();
   order = order.toLowerCase();
 
   let articleSql = `
-    SELECT * FROM articles
+    SELECT * FROM articles 
     `;
-
+  let articleSqlArgs = [];
   const expectedSorts = [
     "title",
     "author",
@@ -24,6 +29,11 @@ exports.selectArticles = async ({ sort_by, order }) => {
   ];
 
   const expectedOrders = ["asc", "ascending", "desc", "descending"];
+
+  if (topic) {
+    articleSql += `WHERE topic = $1 `;
+    articleSqlArgs.push(topic);
+  }
 
   if (expectedSorts.includes(sort_by)) {
     articleSql += `ORDER BY ${sort_by} `;
@@ -45,16 +55,12 @@ exports.selectArticles = async ({ sort_by, order }) => {
     });
   }
 
-  const { rows: articles, rowCount } = await db.query(articleSql);
+  const { rows: articles, rowCount } = await db.query(
+    articleSql,
+    articleSqlArgs
+  );
 
-  if (rowCount === 0) {
-    return Promise.reject({
-      status: 404,
-      message: `No articles found`,
-    });
-  } else {
-    return articles;
-  }
+  return articles;
 };
 
 exports.modifyArticles = async (articles) => {

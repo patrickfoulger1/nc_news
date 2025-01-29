@@ -1,4 +1,6 @@
 const { checkArticleExists } = require("../app/utils/checkArticleExists.js");
+const { checkCommentExists } = require("../app/utils/checkCommentExitsts.js");
+const { checkTopicExists } = require("../app/utils/checkIfTopicExists.js");
 const {
   checkIfValidId: checkIfValidArticleId,
 } = require("../app/utils/checkIfValidId.js");
@@ -121,6 +123,32 @@ describe("checkArticleExists", () => {
     expect(checkArticleExists(55)).rejects.toEqual({
       status: 404,
       message: "Article with id 55 does not exist",
+    });
+  });
+});
+
+describe("checkTopicExists", () => {
+  test("Should resolve if topic with specific slug in database", () => {
+    expect(checkTopicExists("paper")).resolves.toBe(undefined);
+  });
+
+  test("404: Should reject if topic slug doesen't exist in database", () => {
+    expect(checkTopicExists("banana")).rejects.toEqual({
+      status: 404,
+      message: "The topic banana does not exist",
+    });
+  });
+});
+
+describe("checkCommentExists", () => {
+  test("Should resolve if comment with specific id exists in database", () => {
+    expect(checkCommentExists("1")).resolves.toBe(undefined);
+  });
+
+  test("404: Should reject if comment doesen't exist in database", () => {
+    expect(checkCommentExists("999")).rejects.toEqual({
+      status: 404,
+      message: "Comment with id 999 does not exist",
     });
   });
 });
