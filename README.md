@@ -23,9 +23,9 @@ This project is a RESTful API for NC News a place for news and disccusions. The 
 
 Make sure you have Node.js, npm and PostgresSQL installed
 
-[![Node.js](https://skillicons.dev/icons?i=nodejs)](https://nodejs.org/en/download) Requires Node.js v22.9.0\n
-[![Node.js](https://skillicons.dev/icons?i=postgres)](https://www.postgresql.org/download/) Requires PostgreSQL 14.15\n
-[![Node.js](https://skillicons.dev/icons?i=npm)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) Requires npm 10.8.3\n
+[![Node.js](https://skillicons.dev/icons?i=nodejs)](https://nodejs.org/en/download) Requires Node.js v22.9.0  
+[![Node.js](https://skillicons.dev/icons?i=postgres)](https://www.postgresql.org/download/) Requires PostgreSQL 14.15  
+[![Node.js](https://skillicons.dev/icons?i=npm)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) Requires npm 10.8.3
 
 Clone the repo
 
