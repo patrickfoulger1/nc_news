@@ -64,12 +64,12 @@ exports.selectArticles = async ({ sort_by, order, topic }) => {
 };
 
 exports.modifyArticles = async (articles) => {
-  const updatedArticles = await appendArticleCommentCount(articles);
+  const updatedArticles = await appendArticlesCommentCount(articles);
 
   return removeArticlesBody(updatedArticles);
 };
 
-appendArticleCommentCount = async (articles) => {
+appendArticlesCommentCount = async (articles) => {
   const commentSql = `
     SELECT article_id, COUNT(article_id) FROM COMMENTS 
     GROUP BY article_id
@@ -94,6 +94,26 @@ appendArticleCommentCount = async (articles) => {
   });
 };
 
+exports.appendArticleCommentCount = async (originalArticle) => {
+  const article = { ...originalArticle };
+  let commentCount = 0;
+  const commentSql = `
+  SELECT  COUNT(article_id) FROM comments 
+  WHERE article_id = $1
+  GROUP BY article_id;`;
+
+  const { rows: articles, rowCount } = await db.query(commentSql, [
+    article.article_id,
+  ]);
+
+  if (rowCount > 0) {
+    commentCount = Number(articles[0].count);
+  }
+
+  article.comment_count = commentCount;
+
+  return article;
+};
 removeArticlesBody = (articles) => {
   return articles.map((originalArticle) => {
     const article = { ...originalArticle };

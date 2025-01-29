@@ -5,6 +5,7 @@ const {
   selectCommentsByArticleId,
   insertComment,
   updateArticle,
+  appendArticleCommentCount,
 } = require("../Models/articles.model");
 const { checkArticleExists } = require("../utils/checkArticleExists");
 const { checkIfValidId } = require("../utils/checkIfValidId");
@@ -27,7 +28,8 @@ exports.getArticleById = async (request, response, next) => {
     } = request;
     await checkArticleExists(article_id);
     const article = await selectArticleById(article_id);
-    response.status(200).send({ article });
+    const modifiedAritcle = await appendArticleCommentCount(article);
+    response.status(200).send({ article: modifiedAritcle });
   } catch (error) {
     next(error);
   }

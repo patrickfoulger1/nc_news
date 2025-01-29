@@ -1,17 +1,20 @@
 const { checkArticleExists } = require("../app/utils/checkArticleExists.js");
 const { checkCommentExists } = require("../app/utils/checkCommentExitsts.js");
 const { checkTopicExists } = require("../app/utils/checkIfTopicExists.js");
-const {
-  checkIfValidId: checkIfValidArticleId,
-} = require("../app/utils/checkIfValidId.js");
+const { checkIfValidId } = require("../app/utils/checkIfValidId.js");
 const { getKeyString } = require("../app/utils/format.js");
 const db = require("../db/connection.js");
+const seed = require("../db/seeds/seed.js");
+const testData = require("../db/data/test-data/index.js");
 const {
   convertTimestampToDate,
   createRef,
   formatComments,
 } = require("../db/seeds/utils");
 
+beforeEach(() => {
+  return seed(testData);
+});
 afterAll(() => {
   return db.end();
 });
@@ -114,59 +117,6 @@ describe("formatComments", () => {
   });
 });
 
-describe("checkArticleExists", () => {
-  test("Should resolve if article with specific id exists in database", () => {
-    expect(checkArticleExists(5)).resolves.toBe(undefined);
-  });
-
-  test("404: Should reject if article doesen't exist in database", () => {
-    expect(checkArticleExists(55)).rejects.toEqual({
-      status: 404,
-      message: "Article with id 55 does not exist",
-    });
-  });
-});
-
-describe("checkTopicExists", () => {
-  test("Should resolve if topic with specific slug in database", () => {
-    expect(checkTopicExists("paper")).resolves.toBe(undefined);
-  });
-
-  test("404: Should reject if topic slug doesen't exist in database", () => {
-    expect(checkTopicExists("banana")).rejects.toEqual({
-      status: 404,
-      message: "The topic banana does not exist",
-    });
-  });
-});
-
-describe("checkCommentExists", () => {
-  test("Should resolve if comment with specific id exists in database", () => {
-    expect(checkCommentExists("1")).resolves.toBe(undefined);
-  });
-
-  test("404: Should reject if comment doesen't exist in database", () => {
-    expect(checkCommentExists("999")).rejects.toEqual({
-      status: 404,
-      message: "Comment with id 999 does not exist",
-    });
-  });
-});
-
-describe("checkIfValidArticleId", () => {
-  test("Should resolve is article Id is valid", () => {
-    expect(checkIfValidArticleId("5")).resolves.toBe(undefined);
-    expect(checkIfValidArticleId("999")).resolves.toBe(undefined);
-  });
-
-  test("400: Should reject if article Id is not valid", () => {
-    expect(checkIfValidArticleId("banana")).rejects.toEqual({
-      status: 400,
-      message: "Bad Request: NOT NULL VIOLATION",
-    });
-  });
-});
-
 describe("getKeyString", () => {
   test("should format keys into readable format", () => {
     expect(getKeyString(["key1"])).toBe("key1 key");
@@ -174,5 +124,57 @@ describe("getKeyString", () => {
     expect(getKeyString(["key1", "key2", "key3"])).toBe(
       "key1, key2, and key3 keys"
     );
+  });
+
+  describe("checkArticleExists", () => {
+    test("Should resolve if article with specific id exists in database", () => {
+      expect(checkArticleExists(5)).resolves.toBe(undefined);
+    });
+
+    test("404: Should reject if article doesen't exist in database", () => {
+      expect(checkArticleExists(55)).rejects.toEqual({
+        status: 404,
+        message: "Article with id 55 does not exist",
+      });
+    });
+  });
+  describe("checkTopicExists", () => {
+    test("Should resolve if topic with specific slug in database", () => {
+      expect(checkTopicExists("paper")).resolves.toBe(undefined);
+    });
+
+    test("404: Should reject if topic slug doesen't exist in database", () => {
+      expect(checkTopicExists("banana")).rejects.toEqual({
+        status: 404,
+        message: "The topic banana does not exist",
+      });
+    });
+  });
+
+  describe("checkCommentExists", () => {
+    test("Should resolve if comment with specific id exists in database", () => {
+      expect(checkCommentExists("1")).resolves.toBe(undefined);
+    });
+
+    test("404: Should reject if comment doesen't exist in database", () => {
+      expect(checkCommentExists("999")).rejects.toEqual({
+        status: 404,
+        message: "Comment with id 999 does not exist",
+      });
+    });
+  });
+
+  describe("checkIfValidId", () => {
+    test("Should resolve is article Id is valid", () => {
+      expect(checkIfValidId("5")).resolves.toBe(undefined);
+      expect(checkIfValidId("999")).resolves.toBe(undefined);
+    });
+
+    test("400: Should reject if article Id is not valid", () => {
+      expect(checkIfValidId("banana")).rejects.toEqual({
+        status: 400,
+        message: "Bad Request: NOT NULL VIOLATION",
+      });
+    });
   });
 });
