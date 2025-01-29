@@ -87,6 +87,10 @@
   "POST /api/articles/:article_id/comments": {
     "description": "Add a comment to a specific article",
     "queries": [],
+    "exampleRequest": {
+      "username": "lurker",
+      "body": "wow what a cool article"
+    },
     "exampleResponse": {
       "comment": {
         "comment_id": 19,
@@ -101,6 +105,7 @@
   "PATCH /api/articles/:article_id": {
     "description": "Increment an articles votes parameter by sent inc_votes key on request",
     "queries": [],
+    "exampleRequest": { "inc_votes": 50 },
     "exampleResponse": {
       "article": {
         "article_id": 1,
