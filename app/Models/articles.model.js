@@ -3,11 +3,47 @@ const { checkArticleExists } = require("../utils/checkArticleExists.js");
 const { checkIfValidId } = require("../utils/checkIfValidId.js");
 const { getKeyString } = require("../utils/format.js");
 
-exports.selectArticles = async () => {
-  const articleSql = `
+exports.selectArticles = async ({ sort_by, order }) => {
+  sort_by ??= "created_at";
+  order ??= "desc";
+
+  sort_by = sort_by.toLowerCase();
+  order = order.toLowerCase();
+
+  let articleSql = `
     SELECT * FROM articles
-    ORDER BY created_at DESC
     `;
+
+  const expectedSorts = [
+    "title",
+    "author",
+    "article_id",
+    "created_at",
+    "votes",
+    "article_img_url",
+  ];
+
+  const expectedOrders = ["asc", "ascending", "desc", "descending"];
+
+  if (expectedSorts.includes(sort_by)) {
+    articleSql += `ORDER BY ${sort_by} `;
+  } else {
+    return Promise.reject({
+      status: 400,
+      message: `Bad Request: ${sort_by} is an invalid query`,
+    });
+  }
+
+  if (expectedOrders.includes(order)) {
+    if (order === "ascending") order = "ASC";
+    if (order === "descending") order = "DESC";
+    articleSql += order;
+  } else {
+    return Promise.reject({
+      status: 400,
+      message: `Bad Request: ${order} is an invalid query`,
+    });
+  }
 
   const { rows: articles, rowCount } = await db.query(articleSql);
 

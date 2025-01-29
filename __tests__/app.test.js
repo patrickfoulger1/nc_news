@@ -132,6 +132,42 @@ describe("GET /api/articles", () => {
         expect(articles).toBeSorted({ descending: true, key: "created_at" });
       });
   });
+
+  test("200: sort_by query should sort by any valid column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSorted({ descending: true, key: "title" });
+      });
+  });
+
+  test("200: order query should change the sort direction asc or desc", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSorted("title");
+      });
+  });
+
+  test("400: When given an invalid sort_by query should respond with Bad Request error message", () => {
+    return request(app)
+      .get("/api/articles?sort_by=asc")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: asc is an invalid query");
+      });
+  });
+
+  test("400: When given an invalid order query should respond with Bad Request error message", () => {
+    return request(app)
+      .get("/api/articles?order=banana")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: banana is an invalid query");
+      });
+  });
 });
 
 describe("GET /api/articles/:article_id/comments", () => {
