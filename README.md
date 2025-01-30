@@ -1,6 +1,8 @@
-# NC News 📰
+# NC News(https://nc-news-ttql.onrender.com/api/) 📰
 
 ![Stack](https://skillicons.dev/icons?i=js,nodejs,postgres,)
+
+[Check it out here](https://nc-news-ttql.onrender.com/api)
 
 # What is it?
 
