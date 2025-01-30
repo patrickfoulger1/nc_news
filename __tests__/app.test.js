@@ -480,7 +480,7 @@ describe("GET /api/users/:username", () => {
   });
 });
 
-describe.only("PATCH /api/comments/:comment_id", () => {
+describe("PATCH /api/comments/:comment_id", () => {
   test("200: Increments comments votes by inc_votes value on request object responds with updated comment", () => {
     return request(app)
       .patch("/api/comments/1")
