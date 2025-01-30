@@ -14,8 +14,8 @@ exports.getArticles = async (request, response, next) => {
   try {
     const { query } = request;
     const articles = await selectArticles(query);
-    const modiedArticles = await modifyArticles(articles);
-    response.status(200).send({ articles: modiedArticles });
+    const modifiedArticles = await modifyArticles(articles);
+    response.status(200).send({ articles: modifiedArticles });
   } catch (error) {
     next(error);
   }
@@ -28,8 +28,8 @@ exports.getArticleById = async (request, response, next) => {
     } = request;
     await checkArticleExists(article_id);
     const article = await selectArticleById(article_id);
-    const modifiedAritcle = await appendArticleCommentCount(article);
-    response.status(200).send({ article: modifiedAritcle });
+    const modifiedArticle = await appendArticleCommentCount(article);
+    response.status(200).send({ article: modifiedArticle });
   } catch (error) {
     next(error);
   }

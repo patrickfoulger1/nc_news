@@ -101,10 +101,10 @@ describe("GET /api/articles/:article_id", () => {
 
   test("200: If article has no comments it should be 0", () => {
     return request(app)
-      .get("/api/articles/5")
+      .get("/api/articles/4")
       .expect(200)
       .then(({ body: { article } }) => {
-        expect(article).toHaveProperty("comment_count", 2);
+        expect(article).toHaveProperty("comment_count", 0);
       });
   });
 });
@@ -269,7 +269,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("404:Responds with 'Article with id <article_id> does not exist' article dosen't exist", () => {
+  test("404:Responds with 'Article with id <article_id> does not exist' article doesn't exist", () => {
     return request(app)
       .get("/api/articles/55/comments")
       .expect(404)
@@ -300,7 +300,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("404: Responds with 'Article with id <article_id> does not exist' when article dosen't exist", () => {
+  test("404: Responds with 'Article with id <article_id> does not exist' when article doesn't exist", () => {
     return request(app)
       .post("/api/articles/90/comments")
       .send({
@@ -452,6 +452,30 @@ describe("GET /api/users", () => {
             avatar_url: expect.any(String),
           });
         });
+      });
+  });
+});
+
+describe("GET /api/users/:username", () => {
+  test("200: Should respond with user of given username", () => {
+    return request(app)
+      .get("/api/users/rogersop")
+      .expect(200)
+      .then(({ body: { user } }) => {
+        expect(user).toMatchObject({
+          username: expect.any(String),
+          avatar_url: expect.any(String),
+          name: expect.any(String),
+        });
+      });
+  });
+
+  test("404: If username doesn't exist return a username not found", () => {
+    return request(app)
+      .get("/api/users/jolly")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("No user with the username jolly found");
       });
   });
 });
