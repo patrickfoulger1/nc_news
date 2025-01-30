@@ -3,7 +3,7 @@ const seed = require("../db/seeds/seed");
 const endpointsJson = require("../endpoints.json");
 const request = require("supertest");
 const testData = require("../db/data/test-data/index.js");
-const db = require("../db/connection.js");
+const db = require("../db/connection");
 const app = require("../app/app.js");
 
 beforeEach(() => {
@@ -187,8 +187,7 @@ describe("GET /api/articles", () => {
         expect(message).toBe("Bad Request: banana is an invalid query");
       });
   });
-
-  test("200: topic query should filter down reponse to just articles that match the topic", () => {
+  test("200: topic query should filter down response to just articles that match the topic", () => {
     return request(app)
       .get("/api/articles?topic=cats")
       .expect(200)
@@ -374,7 +373,7 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  test("404: Responds with 'Article with id <article_id> does not exist' when article dosen't exist", () => {
+  test("404: Responds with 'Article with id <article_id> does not exist' when article doesn't exist", () => {
     return request(app)
       .patch("/api/articles/76")
       .send({ inc_votes: 50 })

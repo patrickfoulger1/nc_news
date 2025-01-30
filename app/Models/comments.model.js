@@ -1,5 +1,5 @@
 const db = require("../../db/connection.js");
-const { checkCommentExists } = require("../utils/checkCommentExitsts");
+const { checkCommentExists } = require("../utils/checkCommentExists.js");
 
 exports.deleteCommentById = async (comment_id) => {
   const deleteSql = `

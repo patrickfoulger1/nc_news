@@ -1,5 +1,5 @@
 const { checkArticleExists } = require("../app/utils/checkArticleExists.js");
-const { checkCommentExists } = require("../app/utils/checkCommentExitsts.js");
+const { checkCommentExists } = require("../app/utils/checkCommentExists.js");
 const { checkTopicExists } = require("../app/utils/checkIfTopicExists.js");
 const { checkIfValidId } = require("../app/utils/checkIfValidId.js");
 const { getKeyString } = require("../app/utils/format.js");
@@ -131,7 +131,7 @@ describe("getKeyString", () => {
       expect(checkArticleExists(5)).resolves.toBe(undefined);
     });
 
-    test("404: Should reject if article doesen't exist in database", () => {
+    test("404: Should reject if article doesn't exist in database", () => {
       expect(checkArticleExists(55)).rejects.toEqual({
         status: 404,
         message: "Article with id 55 does not exist",
@@ -143,7 +143,7 @@ describe("getKeyString", () => {
       expect(checkTopicExists("paper")).resolves.toBe(undefined);
     });
 
-    test("404: Should reject if topic slug doesen't exist in database", () => {
+    test("404: Should reject if topic slug doesn't exist in database", () => {
       expect(checkTopicExists("banana")).rejects.toEqual({
         status: 404,
         message: "The topic banana does not exist",
@@ -156,7 +156,7 @@ describe("getKeyString", () => {
       expect(checkCommentExists("1")).resolves.toBe(undefined);
     });
 
-    test("404: Should reject if comment doesen't exist in database", () => {
+    test("404: Should reject if comment doesn't exist in database", () => {
       expect(checkCommentExists("999")).rejects.toEqual({
         status: 404,
         message: "Comment with id 999 does not exist",

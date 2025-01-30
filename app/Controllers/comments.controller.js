@@ -1,5 +1,5 @@
 const { deleteCommentById } = require("../Models/comments.model");
-const { checkCommentExists } = require("../utils/checkCommentExitsts");
+const { checkCommentExists } = require("../utils/checkCommentExists");
 
 exports.deleteComment = async (request, response, next) => {
   try {
