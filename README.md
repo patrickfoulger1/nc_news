@@ -1,4 +1,4 @@
-# NC News(https://nc-news-ttql.onrender.com/api/) 📰
+# NC News📰
 
 ![Stack](https://skillicons.dev/icons?i=js,nodejs,postgres,)
 
