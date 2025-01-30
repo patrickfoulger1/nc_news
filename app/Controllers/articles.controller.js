@@ -28,8 +28,7 @@ exports.getArticleById = async (request, response, next) => {
     } = request;
     await checkArticleExists(article_id);
     const article = await selectArticleById(article_id);
-    const modifiedArticle = await appendArticleCommentCount(article);
-    response.status(200).send({ article: modifiedArticle });
+    response.status(200).send({ article });
   } catch (error) {
     next(error);
   }

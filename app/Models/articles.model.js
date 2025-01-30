@@ -94,26 +94,6 @@ appendArticlesCommentCount = async (articles) => {
   });
 };
 
-exports.appendArticleCommentCount = async (originalArticle) => {
-  const article = { ...originalArticle };
-  let commentCount = 0;
-  const commentSql = `
-  SELECT  COUNT(article_id) FROM comments 
-  WHERE article_id = $1
-  GROUP BY article_id;`;
-
-  const { rows: articles, rowCount } = await db.query(commentSql, [
-    article.article_id,
-  ]);
-
-  if (rowCount > 0) {
-    commentCount = Number(articles[0].count);
-  }
-
-  article.comment_count = commentCount;
-
-  return article;
-};
 removeArticlesBody = (articles) => {
   return articles.map((originalArticle) => {
     const article = { ...originalArticle };
@@ -126,13 +106,51 @@ removeArticlesBody = (articles) => {
 exports.selectArticleById = async (article_id) => {
   await checkArticleExists(article_id);
   const articleSql = `
-  SELECT * FROM articles
-  WHERE article_id = $1
+  SELECT articles.*, COUNT(articles.article_id)FROM articles
+  JOIN comments
+    ON comments.article_id = articles.article_id
+    AND articles.article_id = $1
+  GROUP BY articles.article_id
   `;
 
   const { rows: articles, rowCount } = await db.query(articleSql, [article_id]);
+  if (rowCount === 0) {
+    const { rows: articles } = await db.query(
+      "SELECT * FROM articles WHERE article_id = $1",
+      [article_id]
+    );
 
-  return articles[0];
+    const article = articles[0];
+    article.comment_count = 0;
+    return article;
+  } else {
+    const article = articles[0];
+
+    article.comment_count = Number(article.count);
+    delete article.count;
+
+    return article;
+  }
+};
+
+exports.appendArticleCommentCount = async (originalArticle) => {
+  const article = { ...originalArticle };
+  let commentCount = 0;
+  const commentSql = `
+  SELECT  COUNT(article_id) FROM comments 
+  WHERE article_id = $1
+  `;
+
+  const { rows: articles, rowCount } = await db.query(commentSql, [
+    article.article_id,
+  ]);
+
+  if (rowCount > 0) {
+  }
+
+  article.comment_count = commentCount;
+
+  return article;
 };
 
 exports.selectCommentsByArticleId = async (article_id) => {
