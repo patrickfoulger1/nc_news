@@ -4,9 +4,13 @@ const { checkTopicExists } = require("../utils/checkIfTopicExists.js");
 const { checkIfValidId } = require("../utils/checkIfValidId.js");
 const { getKeyString } = require("../utils/format.js");
 
-exports.selectArticles = async ({ sort_by, order, topic }) => {
+exports.selectArticles = async ({ sort_by, order, topic, limit, p }) => {
   sort_by ??= "created_at";
   order ??= "desc";
+  limit ??= 10;
+  p ??= 1;
+
+  let index = 1;
 
   if (topic) {
     await checkTopicExists(topic);
@@ -16,7 +20,7 @@ exports.selectArticles = async ({ sort_by, order, topic }) => {
   order = order.toLowerCase();
 
   let articleSql = `
-    SELECT * FROM articles 
+    SELECT *, COUNT(*) OVER() AS total_count FROM articles 
     `;
   let articleSqlArgs = [];
   const expectedSorts = [
@@ -31,7 +35,8 @@ exports.selectArticles = async ({ sort_by, order, topic }) => {
   const expectedOrders = ["asc", "ascending", "desc", "descending"];
 
   if (topic) {
-    articleSql += `WHERE topic = $1 `;
+    articleSql += `WHERE topic = $${index} `;
+    index++;
     articleSqlArgs.push(topic);
   }
 
@@ -47,20 +52,38 @@ exports.selectArticles = async ({ sort_by, order, topic }) => {
   if (expectedOrders.includes(order)) {
     if (order === "ascending") order = "ASC";
     if (order === "descending") order = "DESC";
-    articleSql += order;
+    articleSql += `${order} `;
   } else {
     return Promise.reject({
       status: 400,
       message: `Bad Request: ${order} is an invalid query`,
     });
   }
+  articleSql += `OFFSET $${index} `;
+  articleSqlArgs.push((p - 1) * limit);
+  index++;
+
+  articleSql += `LIMIT $${index}`;
+  articleSqlArgs.push(limit);
 
   const { rows: articles, rowCount } = await db.query(
     articleSql,
     articleSqlArgs
   );
+  let total_count;
+  if (rowCount > 0) {
+    total_count = Number(articles[0].total_count);
+  } else {
+    total_count = 0;
+  }
 
-  return articles;
+  return {
+    articles: articles.map((article) => {
+      delete article.total_count;
+      return article;
+    }),
+    total_count,
+  };
 };
 
 exports.modifyArticles = async (articles) => {

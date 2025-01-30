@@ -115,7 +115,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles.length).toBe(13);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article).toMatchObject({
             author: expect.any(String),
@@ -136,7 +136,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles.length).toBe(13);
+        expect(articles.length).toBe(10);
         articles.forEach((article) => {
           expect(article.body).toBe(undefined);
         });
@@ -215,6 +215,87 @@ describe("GET /api/articles", () => {
       .expect(404)
       .then(({ body: { message } }) => {
         expect(message).toBe("The topic banana does not exist");
+      });
+  });
+
+  test("200: Responds with paginated list of limit queries length", () => {
+    return request(app)
+      .get("/api/articles?limit=6&order=ascending&sort_by=article_id")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(6);
+
+        articles.forEach((article, index) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: index + 1,
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            topic: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+
+  test("200: Responds with paginated list of correct page when give different page number", () => {
+    return request(app)
+      .get("/api/articles?limit=3&p=3&order=ascending&sort_by=article_id")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBe(3);
+
+        articles.forEach((article, index) => {
+          expect(article).toMatchObject({
+            author: expect.any(String),
+            title: expect.any(String),
+            article_id: index + 7,
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            topic: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+        });
+      });
+  });
+
+  test("200: Responds with empty array if no entries on page", () => {
+    return request(app)
+      .get("/api/articles?p=3")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(Array.isArray(articles)).toBe(true);
+        expect(articles.length).toBe(0);
+      });
+  });
+
+  test("200: Response should now have total_count property with the count of all articles even non paginated ones", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { total_count } }) => {
+        expect(total_count).toBe(13);
+      });
+  });
+
+  test("400: If limit query is not a number should respond with a bad request error message", () => {
+    return request(app)
+      .get("/api/articles?limit=banana")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Invalid Text Representation");
+      });
+  });
+
+  test("400: If p query is not a number should respond with a bad request error message", () => {
+    return request(app)
+      .get("/api/articles?p=banana")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
 });
