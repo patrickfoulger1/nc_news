@@ -18,9 +18,9 @@ This project is a RESTful API for NC News a place for news and disccusions. The 
 ## Local Installation
 
 ```
-1.create .env.devlopment and .env.test files in the root of the project\n
-2.add the line PGDATABASE=nc_news in .env.devlopment
-3.add the line PGDATABASE="nc_news_test" in .env.devlopment
+1.create .env.development and .env.test files in the root of the project\n
+2.add the line PGDATABASE=nc_news in .env.development
+3.add the line PGDATABASE="nc_news_test" in .env.test
 ```
 
 Make sure you have Node.js, npm and PostgresSQL installed
