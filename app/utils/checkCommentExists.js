@@ -5,9 +5,7 @@ exports.checkCommentExists = async (comment_id) => {
     WHERE comment_id = $1
     `;
 
-  const { rows: comments, rowCount } = await db.query(selectCommentSql, [
-    comment_id,
-  ]);
+  const { rowCount } = await db.query(selectCommentSql, [comment_id]);
 
   if (rowCount === 0) {
     return Promise.reject({

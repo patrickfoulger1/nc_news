@@ -479,3 +479,75 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
+
+describe.only("PATCH /api/comments/:comment_id", () => {
+  test("200: Increments comments votes by inc_votes value on request object responds with updated comment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 50 })
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          author: expect.any(String),
+          comment_id: 1,
+          created_at: expect.any(String),
+          votes: 66,
+        });
+      });
+  });
+
+  test("200: Works when inc vote is a negative value", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: -5 })
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          author: expect.any(String),
+          comment_id: 1,
+          created_at: expect.any(String),
+          votes: 11,
+        });
+      });
+  });
+
+  test("404: Responds with 'comment with id <comment_id> does not exist' when comment doesn't exist", () => {
+    return request(app)
+      .patch("/api/comments/76")
+      .send({ inc_votes: 50 })
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Comment with id 76 does not exist");
+      });
+  });
+
+  test("400: Responds with Bad Request error message when comment_id is not a valid number", () => {
+    return request(app)
+      .patch("/api/comments/banana")
+      .send({ inc_votes: 50 })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Invalid Text Representation");
+      });
+  });
+
+  test("400: Responds with error describing missing inc_vote when key is missing", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: NOT NULL VIOLATION");
+      });
+  });
+
+  test("400: Responds with error when inc_vote is wrong data type", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: true })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Invalid Text Representation");
+      });
+  });
+});
