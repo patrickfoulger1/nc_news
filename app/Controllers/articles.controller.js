@@ -1,3 +1,4 @@
+const { request, response } = require("express");
 const {
   selectArticleById,
   selectArticles,
@@ -6,6 +7,7 @@ const {
   insertComment,
   updateArticle,
   appendArticleCommentCount,
+  insertArticle,
 } = require("../Models/articles.model");
 const { checkArticleExists } = require("../utils/checkArticleExists");
 const { checkIfValidId } = require("../utils/checkIfValidId");
@@ -71,6 +73,16 @@ exports.patchArticle = async (request, response, next) => {
     await checkArticleExists(article_id);
     const updatedArticle = await updateArticle(article_id, inc_votes);
     response.status(200).send({ article: updatedArticle });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.postArticle = async (request, response, next) => {
+  try {
+    const { body: postArticle } = request;
+    const article = await insertArticle(postArticle);
+    response.status(201).send({ article });
   } catch (error) {
     next(error);
   }

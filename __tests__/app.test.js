@@ -632,3 +632,88 @@ describe("PATCH /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("POST /api/articles", () => {
+  test("201: Adds article from request body to articles db, and responds with posted article with all properties including comment_count", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        body: "I find this existence challenging",
+        topic: "paper",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          author: "butter_bridge",
+          article_id: 14,
+          title: "Living in the shadow of a great man",
+          body: "I find this existence challenging",
+          topic: "paper",
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          created_at: expect.any(String),
+          comment_count: 0,
+        });
+      });
+  });
+
+  test("201: if no article_img_url is provided sets it to default image", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        body: "I find this existence challenging",
+        topic: "paper",
+      })
+      .expect(201)
+      .then(
+        ({
+          body: {
+            article: { article_img_url },
+          },
+        }) => {
+          expect(article_img_url).toBe(
+            "https://images.pexels.com/photos/10845119/pexels-photo-10845119.jpeg?w=700&h=700"
+          );
+        }
+      );
+  });
+
+  test("400: Responds with bad request error when request body contains invalid keys", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: NOT NULL VIOLATION");
+      });
+  });
+
+  test("400: Responds with bad request error when request body contains invalid data", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: 1,
+        title: true,
+        body: "I find this existence challenging",
+        topic: "coding",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Foreign key violation");
+      });
+  });
+});

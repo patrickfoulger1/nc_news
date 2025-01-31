@@ -17,6 +17,10 @@ app.use((error, request, response, next) => {
       .send({ message: "Bad Request: Invalid Text Representation" });
   } else if (error.code === "23502") {
     response.status(400).send({ message: "Bad Request: NOT NULL VIOLATION" });
+  } else if (error.code === "23503") {
+    response
+      .status(400)
+      .send({ message: "Bad Request: Foreign key violation" });
   } else {
     next(error);
   }

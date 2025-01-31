@@ -218,6 +218,37 @@ exports.insertComment = async (article_id, comment) => {
   }
 };
 
+exports.insertArticle = async ({
+  author,
+  title,
+  body,
+  topic,
+  article_img_url,
+}) => {
+  article_img_url ??=
+    "https://images.pexels.com/photos/10845119/pexels-photo-10845119.jpeg?w=700&h=700";
+
+  const insertArticleSql = `
+    INSERT INTO articles(author, title, body, topic, article_img_url, votes)
+    VALUES($1, $2, $3, $4, $5, 0)
+    RETURNING *
+  `;
+
+  const { rows: articles } = await db.query(insertArticleSql, [
+    author,
+    title,
+    body,
+    topic,
+    article_img_url,
+  ]);
+
+  const article = articles[0];
+
+  article.comment_count = 0;
+
+  return article;
+};
+
 exports.updateArticle = async (article_id, inc_votes) => {
   const updateArticleSql = `
     UPDATE articles
