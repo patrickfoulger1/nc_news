@@ -176,14 +176,31 @@ exports.appendArticleCommentCount = async (originalArticle) => {
   return article;
 };
 
-exports.selectCommentsByArticleId = async (article_id) => {
-  const commentSql = `
+exports.selectCommentsByArticleId = async (article_id, { p, limit }) => {
+  p ??= 1;
+  limit ??= 10;
+  const commentSqlArgs = [];
+  let index = 1;
+  let commentSql = `
   SELECT * FROM comments
   WHERE article_id = $1
   ORDER BY created_at DESC
   `;
+  commentSqlArgs.push(article_id);
+  index++;
 
-  const { rows: comments, rowCount } = await db.query(commentSql, [article_id]);
+  commentSql += `OFFSET $${index} `;
+  commentSqlArgs.push((p - 1) * limit);
+  index++;
+
+  commentSql += `LIMIT $${index}`;
+  commentSqlArgs.push(limit);
+  index++;
+
+  const { rows: comments, rowCount } = await db.query(
+    commentSql,
+    commentSqlArgs
+  );
 
   return comments;
 };

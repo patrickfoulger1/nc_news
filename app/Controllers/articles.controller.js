@@ -40,10 +40,11 @@ exports.getCommentsByArticleId = async (request, response, next) => {
   try {
     const {
       params: { article_id },
+      query,
     } = request;
     await checkArticleExists(article_id);
     await checkIfValidId(article_id);
-    const comments = await selectCommentsByArticleId(article_id);
+    const comments = await selectCommentsByArticleId(article_id, query);
     response.status(200).send({ comments });
   } catch (error) {
     next(error);

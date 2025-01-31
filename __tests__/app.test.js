@@ -330,15 +330,36 @@ describe("GET /api/articles/:article_id/comments", () => {
   });
 
   test("200: Response should be empty array if article has no comments", () => {
-    return (
-      request(app)
-        .get("/api/articles/2/comments")
-        //.expect(200)
-        .then(({ body: { comments } }) => {
-          expect(Array.isArray(comments)).toBe(true);
-          expect(comments.length).toBe(0);
-        })
-    );
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments.length).toBe(0);
+      });
+  });
+
+  test("200: Response only returns responses equal to the limit", () => {
+    return request(app)
+      .get("/api/articles/9/comments?limit=1")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments.length).toBe(1);
+      });
+  });
+
+  test("200: Response returns paginated page equal to p", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=3&p=2")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(3);
+        const expectedCommentIds = [13, 7, 8];
+        comments.forEach((comment, index) => {
+          expect(comment.comment_id).toBe(expectedCommentIds[index]);
+        });
+      });
   });
 
   test("400:Responds with Bad Request error message when article_id is not a valid number", () => {
@@ -356,6 +377,24 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body: { message } }) => {
         expect(message).toBe("Article with id 55 does not exist");
+      });
+  });
+
+  test("400 Responds with bad request error message when limit query is not a number", () => {
+    return request(app)
+      .get("/api/articles/9/comments?limit=banana")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Invalid Text Representation");
+      });
+  });
+
+  test("400 Responds with bad request error message when p query is not a number", () => {
+    return request(app)
+      .get("/api/articles/9/comments?p=banana")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Invalid Text Representation");
       });
   });
 });
