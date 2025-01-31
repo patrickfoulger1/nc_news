@@ -13,7 +13,7 @@
     "description": "serves an array of all users",
     "queries": [],
     "exampleResponse": {
-      "uers": [
+      "users": [
         {
           "username": "rogersop",
           "name": "sam",
@@ -22,14 +22,26 @@
       ]
     }
   },
+  "GET /api/users/:username": {
+    "description": "Gets a user from given username",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "username": "rogersop",
+        "name": "sam",
+        "avatar_url": "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
+      }
+    }
+  },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": ["sort_by", "order", "topic"],
+    "description": "serves an array of paginated articles default limit = 10",
+    "queries": ["sort_by", "order", "topic", "limit", "p"],
     "exampleResponse": {
       "articles": [
         {
           "article_id": 1,
           "title": "Living in the shadow of a great man",
+          "body": "test",
           "topic": "mitch",
           "author": "butter_bridge",
           "created_at": "2020-07-09T20:11:00.000Z",
@@ -37,7 +49,32 @@
           "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           "comment_count": 11
         }
-      ]
+      ],
+      "total_count": 37
+    }
+  },
+
+  "POST /api/articles": {
+    "description": "Inserts request article into table articles and responds with inserted article with appended comment_count",
+    "queries": [],
+    "exampleRequest": {
+      "body": "test",
+      "title": "Living in the shadow of a great man",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "votes": 100,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "comment_count": 11
+      }
     }
   },
 
@@ -61,8 +98,8 @@
   },
 
   "GET /api/articles/:article_id/comments": {
-    "description": "get all comments for a specific article object",
-    "queries": [],
+    "description": "get paginated comments for a specific article object limit default = 10 ",
+    "queries": ["limit", "p"],
     "exampleResponse": {
       "comments": [
         {
@@ -119,10 +156,45 @@
       }
     }
   },
+  "PATCH /api/comments/:comment_id": {
+    "description": "Increment a comments votes parameter by sent inc_votes key on request",
+    "queries": [],
+    "exampleRequest": { "inc_votes": 50 },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 17,
+        "body": "The owls are not what they seem.",
+        "article_id": 9,
+        "author": "icellusedkars",
+        "votes": 70,
+        "created_at": "2020-03-14T17:02:00.000Z"
+      }
+    }
+  },
 
   "DELETE /api/comments/:comment_id": {
     "description": "Deletes a specified comment ",
     "queries": [],
     "exampleResponse": null
+  },
+
+  "DELETE api/articles/:article_id": {
+    "description": "Deletes a specified article ",
+    "queries": [],
+    "exampleResponse": null
+  },
+  "POST /api/topics": {
+    "description": "Add a topic to the topics table",
+    "queries": [],
+    "exampleRequest": {
+      "slug": "coder",
+      "description": "well ok then"
+    },
+    "exampleResponse": {
+      "comment": {
+        "slug": "coder",
+        "description": "well ok then"
+      }
+    }
   }
 }
