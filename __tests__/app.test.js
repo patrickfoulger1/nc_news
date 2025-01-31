@@ -756,3 +756,68 @@ describe("POST /api/articles", () => {
       });
   });
 });
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: On successful deletion of article", () => {
+    return request(app).delete("/api/articles/1").expect(204);
+  });
+
+  test("404: If comment with given id does not exist", () => {
+    return request(app)
+      .delete("/api/articles/99")
+      .expect(404)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Article with id 99 does not exist");
+      });
+  });
+
+  test("400: If given id is invalid", () => {
+    return request(app)
+      .delete("/api/articles/banana")
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Invalid Text Representation");
+      });
+  });
+});
+
+describe("POST api/topics", () => {
+  test("201: Puts request topic into topics db and responds with inserted topic", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: "coder",
+        description: "imagine doing that",
+      })
+      .expect(201)
+      .then(({ body: { topic } }) => {
+        expect(topic).toMatchObject({
+          slug: "coder",
+          description: "imagine doing that",
+        });
+      });
+  });
+
+  test("400:Responds with Bad Request message when missing keys", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({})
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Keys missing or wrong data type");
+      });
+  });
+
+  test("400:Responds with Bad Request message when topic values are wrong data type", () => {
+    return request(app)
+      .post("/api/topics")
+      .send({
+        slug: 4,
+        description: 4,
+      })
+      .expect(400)
+      .then(({ body: { message } }) => {
+        expect(message).toBe("Bad Request: Keys missing or wrong data type");
+      });
+  });
+});

@@ -281,3 +281,16 @@ exports.updateArticle = async (article_id, inc_votes) => {
 
   return updates[0];
 };
+
+exports.deleteArticleById = async (article_id) => {
+  const deleteCommentsSql = `
+  DELETE FROM comments
+  WHERE article_id = $1
+  `;
+  const deleteArticleSql = `
+      DELETE FROM articles
+      WHERE article_id = $1
+      `;
+  await db.query(deleteCommentsSql, [article_id]);
+  return db.query(deleteArticleSql, [article_id]);
+};

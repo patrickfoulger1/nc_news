@@ -8,6 +8,7 @@ const {
   updateArticle,
   appendArticleCommentCount,
   insertArticle,
+  deleteArticleById,
 } = require("../Models/articles.model");
 const { checkArticleExists } = require("../utils/checkArticleExists");
 const { checkIfValidId } = require("../utils/checkIfValidId");
@@ -84,6 +85,20 @@ exports.postArticle = async (request, response, next) => {
     const { body: postArticle } = request;
     const article = await insertArticle(postArticle);
     response.status(201).send({ article });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteArticle = async (request, response, next) => {
+  try {
+    const {
+      params: { article_id },
+    } = request;
+    await checkArticleExists(article_id);
+    await deleteArticleById(article_id);
+
+    response.status(204).send();
   } catch (error) {
     next(error);
   }
