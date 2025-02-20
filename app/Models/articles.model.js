@@ -30,6 +30,7 @@ exports.selectArticles = async ({ sort_by, order, topic, limit, p }) => {
     "created_at",
     "votes",
     "article_img_url",
+    "comment_count",
   ];
 
   const expectedOrders = ["asc", "ascending", "desc", "descending"];
