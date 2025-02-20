@@ -18,6 +18,22 @@ exports.getArticles = async (request, response, next) => {
     const { query } = request;
     const { articles, total_count } = await selectArticles(query);
     const modifiedArticles = await modifyArticles(articles);
+    if (query.sort_by === "comment_count") {
+      if (
+        query.order === "ascending" ||
+        query.order === "asc" ||
+        query.order === "ASC" ||
+        query.order === "ASCENDING"
+      ) {
+        modifiedArticles.sort((a, b) => {
+          return a.comment_count - b.comment_count;
+        });
+      } else {
+        modifiedArticles.sort((a, b) => {
+          return b.comment_count - a.comment_count;
+        });
+      }
+    }
     response.status(200).send({ articles: modifiedArticles, total_count });
   } catch (error) {
     next(error);
